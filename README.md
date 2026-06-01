@@ -44,6 +44,21 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Docker + PostgREST
+
+This repository now includes a Docker Compose setup for PostgreSQL and PostgREST.
+
+```bash
+# start the database and PostgREST
+$ docker compose up -d
+
+# stop the services
+$ docker compose down
+```
+
+- PostgreSQL is available on `localhost:5432`
+- PostgREST is available on `http://localhost:3001`
+
 ## Run tests
 
 ```bash

@@ -1,51 +1,54 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './user.model';
-import { UpdateUserDto } from './updateUser.dto';
-import { CreateUserDto } from './createUser.dto';
+import { UpdateUserDto } from './user.dto';
+import { CreateUserDto } from './user.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+  findById(id: number) {
+    throw new Error('Method not implemented.' + id);
+  }
+  constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
   private users: User[] = [];
 
-  findAll(): User[] {
-    return this.users;
+  async findAll(): Promise<User[]> {
+    return await this.userRepository.find();
   }
 
-  findById(id: number): User {
-    const position = this.findOne(id);
-    if (position === -1) {
+  async getUserById(id: number): Promise<User> {
+    const user = await this.findOne(id);
+    if (!user) {
       throw new Error('User not found');
     }
-    return this.users[position];
+    return user;
   }
 
-  create(user: CreateUserDto): User {
-    const newUser = { ...user, id: this.users.length + 1 };
-    this.users.push(newUser);
+  async create(body: CreateUserDto): Promise<User> {
+    const newUser = await this.userRepository.save(body);
     return newUser;
   }
 
-  delete(id: number): void {
-    const position = this.findOne(id);
-    if (position === -1) {
-      throw new Error('User not found');
-    }
-    this.users.splice(position, 1);
+  async update(id: number, changes: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
+    const updatedUserData = this.userRepository.merge(user, changes);
+    return updatedUserData;
   }
 
-  update(id: number, updatedUser: UpdateUserDto): User {
-    const position = this.findOne(id);
-    const currentData = this.users[position];
-    const newUser = { ...currentData, ...updatedUser, id };
-    this.users[position] = newUser;
-    return newUser;
-  }
-
-  private findOne(id: number): number {
-    const position = this.users.findIndex((user) => user.id === id);
-    if (position === -1) {
+  async delete(id: number): Promise<void> {
+    const user = await this.findOne(id);
+    if (!user) {
       throw new Error('User not found');
     }
-    return position;
+    await this.userRepository.remove(user);
+  }
+
+  private async findOne(id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
   }
 }

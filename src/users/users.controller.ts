@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { CreateUserDto } from './createUser.dto';
-import { UpdateUserDto } from './updateUser.dto';
-import { User } from './user.model';
+import { CreateUserDto } from './user.dto';
+import { UpdateUserDto } from './user.dto';
+import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -9,7 +9,7 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get()
-  getAllUsers(): User[] {
+  getAllUsers(): Promise<User[]> {
     return this.userService.findAll();
   }
 
